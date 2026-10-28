@@ -73,8 +73,11 @@ def get_overloaded_crates(crates: list, threshold_percent):
     
     for crate in crates:
         if (crate.get_current_weight() / crate.max_weight) * 100 >= threshold_percent:
-            overtreshold.append({'crate_id': crate.crate_id, 'weight':crate.max_weight}, 'percent': )
+            overtreshold.append({
+                'crate_id': crate.crate_id,
+                'percent': (crate.get_current_weight() / crate.max_weight) * 100
+            })
     
-    overtreshold.sort(key=lambda item: item['weight'], reverse=True)
+    overtreshold.sort(key=lambda item: item['percent'], reverse=True)
     output = [item['crate_id'] for item in overtreshold]
     return output
