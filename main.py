@@ -111,7 +111,7 @@ class TicketTier:
     def __str__(self):
         return f"{self.tier_name} - ${self.price:.2f} (Available: {self.get_available_seats()}/{self.capacity})"
  
- 
+
 class Event:
     def __init__(self, event_code, event_name):
         if not isinstance(event_code, str):
@@ -139,8 +139,7 @@ class Event:
         for t in self.tiers.values():
             if tier.tier_name.lower() == t.lower:
                 raise ValueError("Tier already exists")
-        
-        
+        self.tiers[tier.tier_name.lower()] = tier
         
     def book_tickets(self, customer_name, tier_name, quantity, discount_percent = 0.0):
         if not isinstance(customer_name, str):
@@ -152,4 +151,19 @@ class Event:
         if not isinstance(tier_name, str):
             raise TypeError("Tier Name must be string.")
         tier_name = tier_name.strip()
+        for tier in self.tiers:
+            if tier_name == tier:
+                break
+            raise KeyError("Tier not found")
         
+        if not isinstance(quantity, int) or isinstance(quantity, bool):
+            raise TypeError("Quantity must be integer")
+        if quantity < 0:
+            raise ValueError("Quantity must be greater than 0")
+        
+        if isinstance(discount_percent, (int, float)) or isinstance(discount_percent, bool):
+            raise TypeError("Discount must be Integer.")
+        if discount_percent < 0 or discount_percent > 50.0:
+            raise ValueError("Discount must be greater than 0")
+        
+        if quantity > tie
