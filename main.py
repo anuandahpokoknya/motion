@@ -97,7 +97,7 @@ class TicketTier:
         
         if not isinstance(capacity, int) or isinstance(capacity, (float, bool)):
             raise TypeError("Capacity must be integer.")
-        if capacity < 0:
+        if capacity <= 0:
             raise ValueError("Price must be greater than 0")
         
         self.tier_name = tier_name.title()
@@ -136,7 +136,7 @@ class Event:
     def add_tier(self, tier):
         if not isinstance(tier, TicketTier):
             raise TypeError("A Tier is not an instance of a Ticket Tier.")
-        for t in self.tiers.values():
+        for t in self.tiers:
             if tier.tier_name.lower() == t.lower:
                 raise ValueError("Tier already exists")
         self.tiers[tier.tier_name.lower()] = tier
@@ -165,5 +165,28 @@ class Event:
             raise TypeError("Discount must be Integer.")
         if discount_percent < 0 or discount_percent > 50.0:
             raise ValueError("Discount must be greater than 0")
+
         
-        if quantity > tie
+        
+# Inisialisasi Event & Tiers
+e1 = Event("EVT-2026   ", "Python Tech Summit")
+t_reg = TicketTier("  Regular    ", 50.0, 100)
+t_vip = TicketTier("  VIP Lounge      ", 150.0, 2)
+
+e1.add_tier(t_reg)
+e1.add_tier(t_vip)
+
+# Pemesanan
+# trx1 = e1.book_tickets("Budi", "regular", 2, discount_percent=10.0) # $90.00
+# trx2 = e1.book_tickets("Siti", "VIP Lounge", 2)                    # $300.00 (VIP Habis)
+# gagal = e1.book_tickets("Andi", "vip lounge", 1)                   # Return False (stok habis)
+
+# print(e1.get_sold_out_tiers())
+# # Output: {'Vip Lounge'}
+
+# # Batalkan Pesanan Budi (Penalti 20%)
+# refund = e1.cancel_booking(trx1, penalty_percent=20.0)
+# print(f"Refund: ${refund:.2f}")
+# # Output: Refund: $72.00 (Regular restock 2 kursi)
+
+# print(e1)
