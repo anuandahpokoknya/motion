@@ -24,7 +24,7 @@ class TicketTier:
         return self.capacity - self.sold
     
     def __str__(self):
-        return f"{self.tier_name} - ${self.price} (Available: {self.get_available_seats()}/{self.capacity})"
+        return f"{self.tier_name} - ${self.price:.2f} (Available: {self.get_available_seats()}/{self.capacity})"
     
 class Event:
     def __init__(self, event_code, event_name):
@@ -60,23 +60,56 @@ class Event:
         
         if not isinstance(tier_name, str):
             raise TypeError("Tier name must be string")
-        tier_name = tier_name.strip()
-        for tier in self.tiers:
-            if tier_name.lower() == tier:
-                raise KeyError("Tier not found")
         
+        tier_name = tier_name.strip().lower()
+        
+        if tier_name not in self.tiers:
+            raise KeyError("Tier not found.")
+
+        tier = self.tiers[tier_name]
+
         if not isinstance(quantity, int) or isinstance(quantity, bool):
             raise TypeError("Quantity must be integer")
+
         if quantity <= 0:
             raise ValueError("Quantity must be greater than 0")
-        
+
         if not isinstance(discount_percent, (int, float)) or isinstance(discount_percent, bool):
             raise TypeError("Discount must be integer or float")
-        if discount_percent <= 0 or discount_percent > 50:
+
+        if not (0 <= discount_percent <= 50):
             raise ValueError("Discount must be between 0 - 50")
         
-               
-                
+        if quantity > tier.get_available_seats():
+            return False
+        
+        tier.sold += quantity
+        total_paid = round((quantity * tier.price) * (1 - discount_percent / 100),2)
+        booking_id = f"TRX-{len(self.bookings)+1:03d}"
+        
+        self.bookings.append({
+            "booking_id": booking_id,
+            "customer": customer_name,
+            "tier_key": tier_name,
+            "quantity": quantity,
+            "total_paid": total_paid
+        })
+        
+        return booking_id
+    
+    def cancel_booking(self, booking_id, penalty_percent=20.0):
+        if not isinstance(penalty_percent, (int, float)) or isinstance(penalty_percent, bool):
+            raise TypeError("Penalty must be int or float")
+        if not (0 <= penalty_percent <= 100):
+            raise ValueError("Penalty must be between 0 - 100")
+        
+        bookings = [booking['booking_id'] for booking in self.bookings]
+        
+        if booking_id not in bookings:
+            raise KeyError("Booking not found")
+        
+        
+        
         
 # Inisialisasi Event & Tiers
 e1 = Event("EVT-2026   ", "Python Tech Summit")
