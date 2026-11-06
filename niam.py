@@ -103,13 +103,44 @@ class Event:
         if not (0 <= penalty_percent <= 100):
             raise ValueError("Penalty must be between 0 - 100")
         
-        bookings = [booking['booking_id'] for booking in self.bookings]
-        
-        if booking_id not in bookings:
-            raise KeyError("Booking not found")
-        
-        
-        
+        for i, booking in enumerate(self.bookings):
+            if booking_id.lower() == booking['booking_id'].lower():
+                tier = self.tiers[booking['tier_key']]
+                tier.sold -= booking['quantity']
+                total_refund = round(booking['total_paid'] * (1 - penalty_percent / 100),2)
+                self.bookings.pop(i)
+                return float(total_refund)
+        raise KeyError("Booking not found")
+    
+    def get_revenue(self):
+        return round(sum([booking['total_paid'] for booking in self.bookings],0.0),2)
+    
+    def get_sold_out_tiers(self):
+        return {tier.tier_name for tier in self.tiers.values() if tier.get_available_seats() == 0}
+    
+    def __len__(self):
+        return sum(tier.sold for tier in self.tiers.values())
+    
+    def __str__(self):
+        row = [f"EVENT: {self.event_name} ({self.event_code})"]
+        if not self.tiers:
+            row.append("-- No Tiers --")
+        for tier in self.tiers.values():
+            row.append(f"- {str(tier)}")
+        row.append(f"Total Sold: {len(self)} | Revenue: ${self.get_revenue():.2f}")
+        return "\n".join(row)
+    
+def get_top_performing_events(events: list, min_revenue):
+    if not isinstance(min_revenue, (int, float)) or isinstance(min_revenue, bool):
+        raise TypeError("Min. revenue must be int or float")
+    if min_revenue < 0:
+        raise ValueError("Min. revenue must be greater than 0")
+    qualified = []
+    for event in events:
+        if event.get_revenue() >= min_revenue:
+            qualified.append(event)
+    qualified.sort(key=lambda e: (len(e), e.get_revenue()), reverse=True)
+    return [event.event_code for event in qualified]
         
 # Inisialisasi Event & Tiers
 e1 = Event("EVT-2026   ", "Python Tech Summit")
@@ -120,3 +151,5 @@ e1.add_tier(t_reg)
 e1.add_tier(t_vip)
 
 print(e1.tiers)
+
+print(e1)

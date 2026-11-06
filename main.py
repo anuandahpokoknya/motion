@@ -83,19 +83,8 @@
 #     return output
 
 
-dic = [
-    {
-        "booking_id": "a",
-        "price": 20
-    },
-    {
-        "booking_id": "b",
-        "price": 20
-    },
-    {
-        "booking_id": "c",
-        "price": 20
-    },
-]
-
-booking_id = "a"
+sett = {
+    "aba": {
+        
+    }
+}
